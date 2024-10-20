@@ -1,0 +1,12 @@
+body 
+{
+    margin: auto 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgb(120, 120, 120);
+}
+
+span
+{
+    color: whitesmoke;
+}
