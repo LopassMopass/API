@@ -4,7 +4,7 @@ class DatabaseSingleton {
   constructor() {
     if (!DatabaseSingleton.instance) {
       this.connection = mysql.createConnection({
-        host: 'localhost:3306',
+        host: '127.0.0.1',
         user: 'user',
         password: 'dUh!8b-Cl@ti9',
         database: 'BlogDatabase'
@@ -37,7 +37,7 @@ class DatabaseSingleton {
   }
 }
 
-// Export the singleton instance
-const instance = new DatabaseSingleton();
+
+const instance = new DatabaseSingleton(); // Export the singleton instance
 Object.freeze(instance); // Ensure the singleton is immutable
 module.exports = instance;

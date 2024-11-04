@@ -1,9 +1,34 @@
 const express = require('express');
-const db = require('./dbs');
+const basicAuth = require('basic-auth');
+const db = require('./dbs.js');
+const path = require('path');
 const app = express();
 app.use(express.json()); // This middleware is used to parse JSON bodies.
 
 app.listen(3000, () => console.log('Server running on port 3000'));
+
+
+const users = { 
+    'admin': { password: 'adminpass', role: 'admin' },
+    'user1': { password: 'user1pass', role: 'user' }
+}; 
+
+function authenticate(req, res, next) {
+    const user = basicAuth(req);
+    if (user && users[user.name] && users[user.name].password === user.pass) {
+        req.user = { name: user.name, role: users[user.name].role };
+        return next();
+    }
+    res.set('WWW-Authenticate', 'Basic realm="example"');
+    res.status(401).send('Authentication required.');
+}
+
+// GET - Shows the endpoints of this API
+app.get('/api/about', (req, res) => {
+    res.sendFile(path.join(__dirname, 'about.html'));
+});
+
+
 
 // GET - Fetch all blog posts
 app.get('/api/blogs', async (req, res) => {
@@ -31,17 +56,18 @@ app.get('/api/blogs/:blogId', async (req, res) => {
 });
 
 // POST - Post a blog post into the database
-app.post('/api/blogs', async (req, res) => {
-    const { text, date_of_creation, author } = req.body;
+app.post('/api/blogs', authenticate, async (req, res) => {
+    const { text, date_of_creation } = req.body;
+    const author = req.user.name;
 
-    if (!text || !date_of_creation || !author) {
-        return res.status(400).send('Missing required fields/types: text, date_of_creation, author');
+    if (!text || !date_of_creation) {
+        return res.status(400).send('Missing required fields: text, date_of_creation');
     }
 
     try {
         const result = await db.query(
-            'INSERT INTO blogs (text, date_of_creation, author) VALUES (?, ?, ?)',
-            [text, date_of_creation, author]
+            'INSERT INTO blogs (text, date_of_creation, author, viewable_by) VALUES (?, ?, ?, ?)',
+            [text, date_of_creation, author, 'everyone']
         );
         res.status(201).send({ message: 'Blog post created', blogId: result.insertId });
     } catch (error) {
@@ -49,44 +75,56 @@ app.post('/api/blogs', async (req, res) => {
     }
 });
 
-// PATCH - Updates a part of a blog post by ID (NEBUDE PODLE ME FUNGOVAT!!!!!!!!!!!!)
-app.patch('/api/blogs/:blogId/:field', async (req, res) => {
+// PATCH - Updates a part of a blog post by ID 
+app.patch('/api/blogs/:blogId', authenticate, async (req, res) => {
     const blogId = req.params.blogId;
-    const field = req.params.field;
-    const value = req.body.value; // Mozna chyba
-
-    const allowedFields = {
-        'texts': 'text',
-        'dates': 'date_of_creation',
-        'authors': 'author'
-    };
-
-    if (!allowedFields[field]) {
-        return res.status(400).send('Invalid field to update');
-    }
+    const field = req.body.field;
+    const value = req.body.value;
+    const author = req.user.name;
 
     try {
-        const result = await db.query(`UPDATE blogs SET ${allowedFields[field]} = ? WHERE id = ?`, [value, blogId]);
-        if (result.affectedRows === 0) {
-            return res.status(404).send('Error 404: Cannot update blog that does not exist.');
-        }
+        const [blog] = await db.query('SELECT * FROM blogs WHERE id = ?', [blogId]);
+        if (!blog) return res.status(404).send('Blog post not found.');
+        if (blog.author !== author && req.user.role !== 'admin') return res.status(403).send('Forbidden');
+
+        await db.query(`UPDATE blogs SET ${field} = ? WHERE id = ?`, [value, blogId]);
         res.status(200).send('Blog post updated');
     } catch (error) {
         res.status(500).send('Error updating blog post');
     }
 });
 
-// DELETE - Delete a blog post by ID
-app.delete('/api/blogs/:blogId', async (req, res) => {
+// PATCH - Set viewable users for a blog post
+app.patch('/api/blogs/:blogId/viewers', authenticate, async (req, res) => {
     const blogId = req.params.blogId;
+    const { viewable_by } = req.body;
+    const author = req.user.name;
 
     try {
-        const result = await db.query('DELETE FROM blogs WHERE id = ?', [blogId]);
-        if (result.affectedRows === 0) {
-            return res.status(404).send('Error 404: Cannot delete blog that does not exist.');
-        }
+        const [blog] = await db.query('SELECT * FROM blogs WHERE id = ?', [blogId]);
+        if (!blog) return res.status(404).send('Blog post not found.');
+        if (blog.author !== author && req.user.role !== 'admin') return res.status(403).send('Forbidden');
+
+        await db.query('UPDATE blogs SET viewable_by = ? WHERE id = ?', [viewable_by, blogId]);
+        res.status(200).send('Viewers updated');
+    } catch (error) {
+        res.status(500).send('Error updating viewers');
+    }
+});
+
+// DELETE - Delete a blog post by ID (admin override)
+app.delete('/api/blogs/:blogId', authenticate, async (req, res) => {
+    const blogId = req.params.blogId;
+    const author = req.user.name;
+
+    try {
+        const [blog] = await db.query('SELECT * FROM blogs WHERE id = ?', [blogId]);
+        if (!blog) return res.status(404).send('Blog post not found.');
+        if (blog.author !== author && req.user.role !== 'admin') return res.status(403).send('Forbidden');
+
+        await db.query('DELETE FROM blogs WHERE id = ?', [blogId]);
         res.status(200).send('Blog post deleted');
     } catch (error) {
         res.status(500).send('Error deleting blog post');
     }
-})
+});

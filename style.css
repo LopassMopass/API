@@ -1,12 +1,28 @@
 body 
 {
-    margin: auto 0;
+    font-family: Arial, sans-serif;
+    margin: 20px;
     height: 100%;
     overflow: hidden;
-    background-color: rgb(120, 120, 120);
+    background-color: rgb(130, 130, 130);
 }
 
-span
-{
-    color: whitesmoke;
+h1 {
+    color: #e1e1e1;
+}
+
+h2 {
+    color: #333;
+    border-bottom: 2px solid #aaaaaa;
+    padding-bottom: 5px;
+}
+
+pre, code {
+    background: #f4f4f4;
+    padding: 10px;
+    display: block;
+}
+
+.endpoint {
+    margin-bottom: 20px;
 }

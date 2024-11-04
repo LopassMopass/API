@@ -9,19 +9,64 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <link rel="stylesheet" href="./style.css" />
-        <title>Blog</title>
+        <link rel="stylesheet" href="./style.css"/>
+        <script src="./server.js"></script>
+        <title>Blog-API</title>
     </head>
     
     <body>
-        <!-- #MARKER body -->
-        <h1>Welcome to the Blog that only responds to API requests!</h1>
-        <h4>Use the following endpoints to interact with the blog:</h4>
-        <p>GET all blogs: <br> <code>/api/blogs</code></p>
-        <p>GET a blog by ID: <br> <code>/api/blogs/{blogId}</code></p>
-        <p>POST a new blog: <br> <code>/api/blogs</code></p>
-        <p>PATCH a blog: <br> <code>/api/blogs/{blogId}/texts, /dates, /authors</code></p>
-        <p>DELETE a blog: <br> <code>/api/blogs/{blogId}</code></p>
-    </body>
+        <h1>Blog API Documentation</h1>
+        <p>This API allows users to create, read, update, and delete blog posts with user-specific permissions. Each user can only edit or delete their own posts, and they can control visibility of their posts. An admin user has full access to all posts.</p>
     
+        <h2>Base URL</h2>
+        <p><code>http://localhost:3000/api</code></p>
+    
+        <h2>Authentication</h2>
+        <p>This API uses Basic Authentication. Users must provide their username and password for all protected routes.
+    
+        <h2>Endpoints</h2>
+
+        <div class="endpoint">
+            <h3>GET /api/about</h3>
+            <p><strong>Description:</strong> Fetch all possible endpoints in Blog-API.</p>
+            <p><strong>Example Request:</strong></p>
+            <pre>GET http://localhost:3000/api/about</pre>
+        </div>
+    
+        <div class="endpoint">
+            <h3>GET /api/blogs</h3>
+            <p><strong>Description:</strong> Fetch all blog posts. Accessible to all users.</p>
+            <p><strong>Example Request:</strong></p>
+            <pre>GET http://localhost:3000/api/blogs</pre>
+        </div>
+    
+        <div class="endpoint">
+            <h3>GET /api/blogs/:blogId</h3>
+            <p><strong>Description:</strong> Fetch a single blog post by ID. Accessible if user has permission.</p>
+            <p><strong>Example Request:</strong></p>
+            <pre>GET http://localhost:3000/api/blogs/1</pre>
+        </div>
+    
+        <div class="endpoint">
+            <h3>POST /api/blogs</h3>
+            <p><strong>Description:</strong> Create a new blog post. Accessible to authenticated users.</p>
+            <p><strong>Request Body in JSON format like this:</strong></p>
+            <pre>{"text": "My first blog post", "date_of_creation": "2024-11-03"}</pre>
+            <p><strong>Example Request:</strong></p>
+            <pre>POST http://localhost:3000/api/blogs
+                Content-Type: application/json
+            {
+                "text": "My first blog post",
+                "date_of_creation": "2024-11-03"
+            }</pre>
+        </div>
+    
+        <h2>Error Codes</h2>
+        <ul>
+            <li><strong>401 Unauthorized:</strong> User is not authenticated.</li>
+            <li><strong>403 Forbidden:</strong> User does not have permission for the requested operation.</li>
+            <li><strong>404 Not Found:</strong> The specified blog post or resource was not found.</li>
+            <li><strong>500 Internal Server Error:</strong> An error occurred on the server.</li>
+        </ul>
+    </body>
 </html>
