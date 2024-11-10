@@ -3,22 +3,28 @@ const basicAuth = require('basic-auth');
 const db = require('./dbs.js');
 const path = require('path');
 const app = express();
-app.use(express.json()); // This middleware is used to parse JSON bodies.
+app.use(express.json());
 
 app.listen(3000, () => console.log('Server running on port 3000'));
 
-
-const users = { 
-    'admin': { password: 'adminpass', role: 'admin' },
-    'user1': { password: 'user1pass', role: 'user' }
-}; 
-
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
     const user = basicAuth(req);
-    if (user && users[user.name] && users[user.name].password === user.pass) {
-        req.user = { name: user.name, role: users[user.name].role };
-        return next();
+    if (!user) {
+        res.set('WWW-Authenticate', 'Basic realm="example"');
+        return res.status(401).send('Authentication required.');
     }
+
+    try {
+        // Check if user exists and password matches
+        const [dbUser] = await db.query('SELECT * FROM users WHERE name = ?', [user.name]);
+        if (dbUser && dbUser.password === user.pass) {
+            req.user = { name: dbUser.name, role: dbUser.role };
+            return next();
+        }
+    } catch (error) {
+        return res.status(500).send('Error during authentication');
+    }
+
     res.set('WWW-Authenticate', 'Basic realm="example"');
     res.status(401).send('Authentication required.');
 }
@@ -27,8 +33,6 @@ function authenticate(req, res, next) {
 app.get('/api/about', (req, res) => {
     res.sendFile(path.join(__dirname, 'about.html'));
 });
-
-
 
 // GET - Fetch all blog posts
 app.get('/api/blogs', async (req, res) => {
@@ -52,6 +56,26 @@ app.get('/api/blogs/:blogId', async (req, res) => {
         res.status(200).json(blogs[0]);
     } catch (error) {
         res.status(500).send('Error fetching blog post.');
+    }
+});
+
+// POST - Register a new user
+app.post('/api/register', async (req, res) => {
+    const { name, password, role = 'user' } = req.body;
+
+    if (!name || !password) {
+        return res.status(400).send('Missing required fields: name, password');
+    }
+
+    try {
+        await db.query('INSERT INTO users (name, password, role) VALUES (?, ?, ?)', [name, password, role]);
+        res.status(201).send('User registered successfully');
+    } catch (error) {
+        if (error.code === 'ER_DUP_ENTRY') {
+            res.status(400).send('User already exists');
+        } else {
+            res.status(500).send('Error registering user');
+        }
     }
 });
 

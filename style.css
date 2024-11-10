@@ -1,28 +1,29 @@
 body 
-{
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    height: 100%;
-    overflow: hidden;
-    background-color: rgb(130, 130, 130);
+{ 
+    font-family: Arial, sans-serif; 
+    max-width: 800px; 
+    margin: 0 auto; 
+    padding: 20px; 
+    line-height: 1.6; 
 }
 
-h1 {
-    color: #e1e1e1;
-}
-
-h2 {
-    color: #333;
-    border-bottom: 2px solid #aaaaaa;
-    padding-bottom: 5px;
+h1, h2, h3 
+{ 
+    color: #333; 
 }
 
 pre, code {
     background: #f4f4f4;
-    padding: 10px;
-    display: block;
+    padding: 2px 4px;
+    border-radius: 4px;
 }
 
-.endpoint {
+.section 
+{ 
+    margin-top: 20px; 
+}
+
+.endpoint 
+{
     margin-bottom: 20px;
 }

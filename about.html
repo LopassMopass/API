@@ -1,0 +1,87 @@
+<!--
+    Blog-API Documentation
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- #MARKER head -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>API-Documentation</title>
+        <link rel="stylesheet" href="./style.css"/>
+    </head>
+
+    <body>
+        <!-- #MARKER body -->
+        <h1><b>API-Documentation</b></h1>
+
+        <p>This document provides details for each endpoint in the API, along with example requests using Git Bash and Postman. It also offers guidance for handling common error codes.</p>
+        
+        <!-- #MARKER Endpoints -->
+        <div class="section">
+            <h2>Endpoints</h2>
+
+            <h3>1. GET /api/about</h3>
+            <p>Returns this documentation page.</p>
+
+            <h3>2. GET /api/blogs</h3>
+            <p>Fetches all blog posts.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X GET http://156.34.25.6/api/blogs</code></p>
+            <p>Postman: Select GET method, and set URL to <code>http://156.34.25.6/api/blogs</code></p>
+
+            <h3>3. GET /api/blogs/:blogId</h3>
+            <p>Fetches a specific blog post by ID.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X GET http://144.23.44.1/api/blogs/1</code></p>
+            <p>Postman: Select GET method, and set URL to <code>http://144.23.44.1/api/blogs/1</code></p>
+
+            <h3>4. POST /api/register</h3>
+            <p>Registers a new user. Requires JSON body with <code>name</code> and <code>password</code>.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X POST -H "Content-Type: application/json" -d '{"name": "user1", "password": "pass123"}' http://69.69.69.69/api/register</code></p>
+            <p>Postman: Select POST method, set URL to <code>http://69.69.69.69/api/register</code>, and add JSON body with <code>name</code> and <code>password</code> fields.</p>
+
+            <h3>5. POST /api/blogs</h3>
+            <p>Creates a new blog post. Requires authentication and a JSON body with <code>text</code> and <code>date_of_creation</code>.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X POST -u user1:pass123 -H "Content-Type: application/json" -d '{"text": "New post", "date_of_creation": "2024-11-10"}' http://133.55.60.5/api/blogs</code></p>
+            <p>Postman: Select POST method, set URL to <code>http://133.55.60.5/api/blogs</code>, add JSON body, and set Basic Auth credentials.</p>
+
+            <h3>6. PATCH /api/blogs/:blogId</h3>
+            <p>Updates a blog post's field. Requires authentication and JSON with <code>field</code> and <code>value</code>.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X PATCH -u user1:pass123 -H "Content-Type: application/json" -d '{"field": "text", "value": "Updated text"}' http://1.122.23.4/api/blogs/1</code></p>
+            <p>Postman: Select PATCH method, set URL to <code>http://1.122.23.4/api/blogs/1</code>, add JSON body, and set Basic Auth credentials.</p>
+
+            <h3>7. PATCH /api/blogs/:blogId/viewers</h3>
+            <p>Updates viewers for a blog post. Requires authentication and JSON with <code>viewable_by</code>.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X PATCH -u user1:pass123 -H "Content-Type: application/json" -d '{"viewable_by": "admin"}' http://10.25.89.0/api/blogs/1/viewers</code></p>
+            <p>Postman: Select PATCH method, set URL to <code>http://10.25.89.0/api/blogs/1/viewers</code>, add JSON body, and set Basic Auth credentials.</p>
+
+            <h3>8. DELETE /api/blogs/:blogId</h3>
+            <p>Deletes a blog post by ID. Requires authentication.</p>
+            <p><strong>Example:</strong></p>
+            <p>Git Bash: <code>curl -X DELETE -u admin:adminpass http://30.35.122.2/api/blogs/1</code></p>
+            <p>Postman: Select DELETE method, set URL to <code>http://30.35.122.2/api/blogs/1</code>, and set Basic Auth credentials.</p>
+        </div>
+        
+        <!-- #MARKER Error -->
+        <div class="section">
+            <h2>Handling Errors</h2>
+            <p>Here is what to do if you encounter these common error codes:</p>
+
+            <h3>Error 500: Server Error</h3>
+            <p>This error indicates an issue on the server side. Try again later or contact support.</p>
+
+            <h3>Error 400: Bad Request</h3>
+            <p>This error often means there are missing or incorrect fields in the request. Double-check the required fields and try again.</p>
+
+            <h3>Error 404: Not Found</h3>
+            <p>This error indicates that the resource (like a blog post or user) was not found. Verify the ID or URL and try again.</p>
+        </div>
+
+    </body>
+</html>
